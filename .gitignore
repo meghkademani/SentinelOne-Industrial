@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Runtime data
+safety_log.csv
+safety_log_copy.csv
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
