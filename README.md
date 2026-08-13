@@ -1,329 +1,696 @@
-Pasted code.py
-Python
-Pasted code(1).py
-Python
-also it is not stable yet
- i have two yolo
-made a mistake ig
-Pasted code(2).py
-Python
-edit me code and give for stavle operating
-q
-still getting same contributors
+# SentinelOne Industrial
 
-Yep — the README is saved, but I spotted one small issue in your screenshot:
+## Factory Worker Safety Monitoring System
 
-## ðŸ”§ Hardware
+**SentinelOne Industrial** is a real-time industrial safety monitoring prototype that combines **embedded sensors, Arduino, computer vision, YOLO-based worker detection, danger-zone monitoring, and safety-event analytics** into a unified monitoring system.
 
-The 🔧 emoji is displaying as broken characters (ðŸ”§). That's just an encoding issue in PowerShell, not a problem with the README itself.
+The system continuously combines environmental sensor data with visual information from a webcam to determine whether the monitored environment is **SAFE, WARNING, or DANGER**.
 
-Do this next
+> **Project Status:** Functional prototype / development project
 
-Don't worry about the emoji for now. Open README.md in VS Code and check the actual heading. If VS Code shows:
-
-## 🔧 Hardware
-
-then you're good. VS Code can display it correctly even if PowerShell can't.
-
-Now run:
-
-git status
-
-Send me the output.
-
-We're going to check exactly what Git sees before we add anything.
-
-Ah — I spotted an important issue in the screenshot. Don't commit yet. ⚠️
-
-Your README.md contains some of our chat/instruction text accidentally pasted into the file around line 292:
-
-tell me README done
-and we'll do Step 3:
-create .gitignore and
-requirements.txt...
-
-That should not be in your GitHub README.
-
-Fix it now
-
-In README.md:
-
-Go to around line 292.
-Delete the entire block that starts with something like:
-tell me README done
-
-and includes:
-
-and we'll do Step 3...
-create `.gitignore` and
-`requirements.txt`...
-Make sure your README transitions naturally from your actual project documentation to:
 ---
 
+## 🚨 Overview
 
-## 🔧 Hardware
+Industrial environments can contain multiple simultaneous hazards. SentinelOne Industrial is designed as a prototype system for monitoring several of these conditions in real time.
 
+The system combines:
 
-Factory Worker Safety Monitoring System
+* 🌫️ Gas-level monitoring
+* 📏 Ultrasonic distance monitoring
+* 👷 YOLO-based worker detection
+* 🚧 Configurable danger-zone detection
+* 🟢 SAFE / 🟠 WARNING / 🔴 DANGER classification
+* 🖥️ Real-time monitoring dashboard
+* 📋 CSV safety-event logging
+* 📊 Historical safety analytics
+* 🔌 Arduino-to-Python serial communication
+* 📷 Webcam-based computer vision
 
-Actually, based on your screenshot, I also notice your Hardware section appears to have only:
+---
 
-## 🔧 Hardware
+# 🏗️ System Architecture
 
+```text
+                         SENTINELONE INDUSTRIAL
+                    FACTORY WORKER SAFETY MONITOR
+                                  │
+              ┌───────────────────┴───────────────────┐
+              │                                       │
+              ▼                                       ▼
+       ┌───────────────┐                       ┌───────────────┐
+       │  ARDUINO UNO  │                       │    WEBCAM     │
+       └───────┬───────┘                       └───────┬───────┘
+               │                                       │
+       ┌───────┴────────┐                              │
+       │                │                              │
+       ▼                ▼                              ▼
+ ┌───────────┐    ┌───────────┐              ┌────────────────┐
+ │ Gas Sensor│    │  HC-SR04   │              │ YOLO11n Model  │
+ │ MQ-2 /    │    │ Ultrasonic │              │ Worker/Person  │
+ │ MQ-135    │    │  Distance  │              │   Detection    │
+ └─────┬─────┘    └─────┬─────┘              └───────┬────────┘
+       │                │                             │
+       └────────────────┴──────────────┬──────────────┘
+                                       │
+                                       ▼
+                            ┌─────────────────────┐
+                            │   PYTHON SAFETY     │
+                            │       ENGINE        │
+                            └──────────┬──────────┘
+                                       │
+                         ┌─────────────┼─────────────┐
+                         │             │             │
+                         ▼             ▼             ▼
+                  ┌────────────┐ ┌────────────┐ ┌─────────────┐
+                  │ Gas Safety │ │ Distance  │ │ Danger Zone │
+                  │ Evaluation │ │ Evaluation│ │  Detection  │
+                  └─────┬──────┘ └─────┬──────┘ └──────┬──────┘
+                        │              │               │
+                        └──────────────┼───────────────┘
+                                       │
+                                       ▼
+                            ┌─────────────────────┐
+                            │   SAFETY ENGINE     │
+                            │                     │
+                            │ SAFE / WARNING /    │
+                            │       DANGER        │
+                            └──────────┬──────────┘
+                                       │
+                         ┌─────────────┴─────────────┐
+                         │                           │
+                         ▼                           ▼
+                ┌────────────────┐          ┌─────────────────┐
+                │ LIVE DASHBOARD │          │  EVENT LOGGER   │
+                │                │          │                 │
+                │ Sensor Data    │          │ safety_log.csv  │
+                │ Workers        │          └────────┬────────┘
+                │ Zone Status    │                   │
+                │ Safety Status  │                   ▼
+                └────────────────┘          ┌─────────────────┐
+                                            │    ANALYTICS    │
+                                            │                 │
+                                            │ History         │
+                                            │ Statistics      │
+                                            │ Graphs          │
+                                            └─────────────────┘
+```
 
-Factory Worker Safety Monitoring System
+---
 
-So don't leave it like that. Replace that section with:
+# ⚙️ How It Works
 
-## 🔧 Hardware
+The monitoring pipeline operates continuously:
 
+```text
+1. Arduino reads environmental sensors
+              ↓
+2. Sensor data is transmitted through serial communication
+              ↓
+3. Python receives gas and distance readings
+              ↓
+4. Webcam captures the monitoring area
+              ↓
+5. YOLO11n detects people/workers
+              ↓
+6. Worker positions are evaluated against the danger zone
+              ↓
+7. Gas, distance and zone conditions are evaluated
+              ↓
+8. Safety engine determines system state
+              ↓
+9. Dashboard displays the current condition
+              ↓
+10. Safety events are recorded for later analysis
+```
 
-- Arduino Uno
-- MQ-2 / MQ-135 gas sensor
-- HC-SR04 ultrasonic sensor
-- USB connection
-- Webcam
+---
 
-Then save with:
+# 👷 Computer Vision & Worker Detection
 
-Ctrl + S
+SentinelOne Industrial uses **YOLO11n** through the Ultralytics framework for real-time person detection.
 
-Then stop.
+The current implementation:
 
-Don't run git add yet.
+* Processes webcam frames using OpenCV.
+* Runs YOLO inference at a controlled frame interval to improve responsiveness.
+* Uses a confidence threshold of **0.45**.
+* Filters detections to the COCO `person` class.
+* Tracks the number of detected workers.
+* Uses worker position for danger-zone evaluation.
 
-Once you've cleaned that accidental chat text and fixed the Hardware section, tell me "cleaned".
+## The system also retains the latest valid detections between inference frames to improve dashboard smoothness on typical computers.
 
-Then I'll give you the next step: checking the README from top to bottom before we commit it.
+# 🚧 Danger-Zone Detection
 
-iam not getting  u better generte mw new edited readme.me
+A configurable rectangular danger zone is defined inside the camera frame.
 
-Done bro. I generated a completely clean README.md with the accidental ChatGPT instructions removed and the documentation properly organized.
+```text
+             CAMERA FRAME
+┌──────────────────────────────────────────┐
+│                                          │
+│              SAFE AREA                   │
+│                                          │
+│                                          │
+│       ┌──────────────────────────┐       │
+│       │                            │       │
+│       │      DANGER ZONE          │       │
+│       │                            │       │
+│       │       👷                  │       │
+│       │                            │       │
+│       └──────────────────────────┘       │
+│                                          │
+└──────────────────────────────────────────┘
+```
 
-Download it here:
+The current implementation calculates the zone relative to the camera frame rather than using fixed pixel coordinates. This makes the zone adaptable to the active frame dimensions.
 
-Download the clean README.md
+Worker position is evaluated using the lower portion of the detected bounding box as an approximation of the worker's standing/foot position.
 
-What you do now
-Download the file.
-In VS Code, replace the entire contents of your current README.md with this file's contents.
-Press Ctrl + S.
+A worker entering the configured danger zone is treated as an immediate **DANGER** condition.
 
-Don't run any Git commands yet.
+---
 
-Once you've replaced it, just say done and we'll do the next step together. 
+# 🛡️ Safety Classification
 
-README.md
-Document
+The safety engine evaluates multiple conditions.
 
-README.md
-SentinelOne Industrial
-Factory Worker Safety Monitoring System
+## SAFE
 
-SentinelOne Industrial is a real-time industrial safety monitoring prototype that combines Arduino-based environmental sensing with computer vision to monitor worker safety conditions.
+The monitored conditions remain within normal operating limits.
 
-The system combines gas-level monitoring, ultrasonic distance measurement, YOLO-based worker detection, danger-zone detection, real-time safety classification, event logging, and safety analytics.
+## WARNING
 
-Key Features
-Real-time gas monitoring using MQ-2 / MQ-135
-Ultrasonic proximity monitoring using HC-SR04
-YOLO-based worker detection
-Danger-zone intrusion detection
-SAFE / WARNING / DANGER classification
-Live safety monitoring dashboard
-CSV-based safety event logging
-Safety history and analytics
-Statistical analysis and graphs
-Arduino-to-Python serial communication
-Webcam-based computer vision
-System Architecture
-                    +--------------------+
-                    |     Arduino UNO    |
-                    +---------+----------+
-                              |
-                     Serial Communication
-                              |
-              +---------------+---------------+
-              |                               |
-        MQ-2 / MQ-135                       HC-SR04
-        Gas Sensor                         Distance
-              |                               |
-              +---------------+---------------+
-                              |
-                              v
-                    +-----------------+
-                    | Python Safety   |
-                    |     Engine      |
-                    +--------+--------+
-                             |
-              +--------------+--------------+
-              |              |              |
-              v              v              v
-           OpenCV          YOLO         Sensor Data
-           Webcam       Worker Detection
-              |              |
-              |              v
-              |        Danger Zone
-              |         Detection
-              |              |
-              +--------------+--------------+
-                             |
-                             v
-                   SAFE / WARNING / DANGER
-                             |
-                  +----------+----------+
-                  |                     |
-                  v                     v
-             Live Dashboard        CSV Logging
-                                        |
-                                        v
-                              History & Analytics
-Hardware
-Arduino Uno
-MQ-2 / MQ-135 gas sensor
-HC-SR04 ultrasonic sensor
-USB connection
-Webcam
-Software
-Python
-OpenCV
-PySerial
-Ultralytics YOLO
-Pandas
-Matplotlib
-Tkinter
-Worker Detection
+A monitored parameter has crossed its warning threshold but has not reached the configured danger condition.
 
-The system uses YOLO-based computer vision to detect workers through the connected webcam.
+## DANGER
 
-Detected workers are integrated into the safety-monitoring pipeline so that worker presence can be considered together with sensor readings and the configured danger zone.
+A critical condition has been detected.
 
-Danger Zone Detection
+Examples include:
 
-A configurable danger zone is defined within the camera view.
+* Worker intrusion into the configured danger zone
+* Gas level exceeding the danger threshold
+* Distance reaching the configured danger range
 
-When a detected worker enters the configured zone, the system can classify the situation as a dangerous condition.
+The safety engine prioritizes danger-zone intrusion and critical sensor conditions over normal operation.
 
-The danger-zone system uses:
+---
 
-Worker detection
-Worker position
-Configured danger-zone boundaries
-Real-time safety classification
-Safety Thresholds
+# 📏 Current Distance Thresholds
 
-The current implementation uses these distance thresholds:
+The current implementation uses:
 
-Condition	Distance
-Warning	<= 20 cm
-Danger	<= 10 cm
+| Condition  | Threshold |
+| ---------- | --------: |
+| 🟠 WARNING |   ≤ 20 cm |
+| 🔴 DANGER  |   ≤ 10 cm |
 
-Gas-level thresholds are also used by the safety-monitoring system to classify environmental conditions.
+These values are configurable in the Python safety engine.
 
-Safety Monitoring
+---
 
-The system continuously processes:
+# 🌫️ Gas Monitoring
 
-Gas sensor readings
-Ultrasonic distance
-Number of detected workers
-Worker position
-Danger-zone status
+The system is designed to receive gas-level readings from the Arduino-based sensing subsystem.
 
-The resulting safety state is classified as:
+The gas reading is transmitted to Python through the serial interface and incorporated into the safety classification.
 
-SAFE
-WARNING
-DANGER
-Event Logging
+The configured software thresholds are:
 
-Safety events are recorded in CSV format.
+| Condition  | Gas Level |
+| ---------- | --------: |
+| 🟠 WARNING |      > 70 |
+| 🔴 DANGER  |     > 150 |
 
-The log contains:
+These are **prototype software thresholds**, not certified occupational exposure limits. The implementation defines these values as `GAS_WARNING = 70` and `GAS_DANGER = 150`.
 
-Timestamp
-Gas level
-Distance
-Number of workers
-Safety status
+---
 
-The recorded data can be used for historical analysis and visualization.
+# 🔌 Arduino Communication
 
-Safety Analytics
+The Arduino communicates with the Python application using serial communication.
 
-The analytics component provides:
+Current configuration:
 
-Total safety events
-SAFE events
-WARNING events
-DANGER events
-Average gas level
-Average distance
-Average workers detected
-Gas-level history
-Distance history
-Worker detection history
-Safety-status distribution
-Project Structure
+```text
+Serial Port : COM3
+Baud Rate   : 9600
+```
+
+The Python application parses sensor messages containing gas and distance values.
+
+Example data format:
+
+```text
+Gas: 82 | Distance: 17.50
+```
+
+The Python application extracts these values and feeds them into the safety engine.
+
+> **Note:** The COM port may need to be changed depending on the computer and Arduino connection.
+
+---
+
+# 🖥️ Real-Time Dashboard
+
+The application provides a live OpenCV monitoring interface.
+
+The dashboard can display:
+
+* Current gas level
+* Current distance
+* Number of detected workers
+* Danger-zone status
+* Current safety status
+* System operational state
+* Monitoring state
+* Exit instruction
+
+## The Stage 3 implementation displays the current status directly on the monitoring frame and reports the same information in the terminal.
+
+# 📋 Safety Event Logging
+
+Safety events are stored in CSV format.
+
+The log records:
+
+| Field         | Description                |
+| ------------- | -------------------------- |
+| Timestamp     | Time of the recorded event |
+| Gas Level     | Current gas reading        |
+| Distance      | Ultrasonic distance in cm  |
+| Workers       | Number of detected workers |
+| Safety Status | SAFE / WARNING / DANGER    |
+
+This provides a persistent history that can be used for later analysis.
+
+---
+
+# 📊 Analytics
+
+The project includes safety-history and analytics components for analyzing recorded events.
+
+Possible analysis includes:
+
+* Total recorded events
+* SAFE events
+* WARNING events
+* DANGER events
+* Average gas level
+* Average distance
+* Worker detection statistics
+* Gas history
+* Distance history
+* Safety-status distribution
+
+---
+
+# 🔧 Hardware
+
+## Required / Prototype Hardware
+
+* Arduino Uno
+* MQ-series gas sensor
+* HC-SR04 ultrasonic distance sensor
+* USB connection
+* Computer/laptop
+* Webcam
+
+### Hardware Flow
+
+```text
+MQ Gas Sensor ─────┐
+                   │
+                   ▼
+              Arduino UNO
+                   │
+HC-SR04 ───────────┘
+                   │
+                   │ USB / Serial
+                   ▼
+             Python Application
+                   │
+                   ▼
+             Safety Engine
+```
+
+---
+
+# 💻 Software Stack
+
+| Component            | Technology  |
+| -------------------- | ----------- |
+| Programming          | Python      |
+| Embedded Controller  | Arduino Uno |
+| Computer Vision      | OpenCV      |
+| Object Detection     | YOLO11n     |
+| YOLO Framework       | Ultralytics |
+| Serial Communication | PySerial    |
+| Data Processing      | Pandas      |
+| Visualization        | Matplotlib  |
+| Logging              | CSV         |
+| Dashboard            | OpenCV      |
+
+---
+
+# 📁 Project Structure
+
+```text
 SentinelOne-Industrial/
-|
-+-- README.md
-+-- .gitignore
-+-- requirements.txt
-|
-+-- sentinelone_main_yolo_zone_stage3.py
-+-- sentinelone_serial.py
-+-- worker_detection.py
-+-- worker_detection_yolo.py
-|
-+-- yolo11n.pt
-|
-+-- archive/
-+-- data/
-+-- docs/
-+-- src/
+│
+├── README.md
+├── .gitignore
+├── requirements.txt
+│
+├── sentinelone_main_yolo_zone_stage3.py
+├── sentinelone_serial.py
+├── worker_detection.py
+├── worker_detection_yolo.py
+│
+├── yolo11n.pt
+│
+├── safety_log.csv
+│
+├── sentinelone_analytics.py
+├── sentinelone_history.py
+│
+├── archive/
+│   └── old_versions/
+│       └── Previous development versions
+│
+├── docs/
+│
+└── data/
+```
 
-The repository may contain archived or experimental files that are not part of the current Stage 3 implementation.
+> The `archive/` directory contains previous development versions and is kept separately from the active implementation.
 
-Current Implementation
+---
 
-The current Stage 3 implementation includes:
+# 🚀 Installation
 
-Arduino-Python serial communication
-Gas monitoring
-Ultrasonic distance monitoring
-YOLO worker detection
-Danger-zone detection
-SAFE / WARNING / DANGER classification
-Real-time monitoring dashboard
-CSV safety-event logging
-Safety history and analytics
-Running the System
-1. Install dependencies
+## 1. Clone the Repository
+
+```bash
+git clone https://github.com/meghkademani/SentinelOne-Industrial.git
+cd SentinelOne-Industrial
+```
+
+## 2. Create a Python Environment
+
+Recommended:
+
+```powershell
+python -m venv .venv
+```
+
+Activate it on Windows:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+## 3. Install Dependencies
+
+```powershell
 pip install -r requirements.txt
-2. Connect the hardware
+```
 
-Connect the Arduino and sensors and verify the configured serial port.
+---
 
-3. Start the application
+# 🔌 Hardware Setup
+
+1. Connect the Arduino Uno to the computer.
+2. Connect the gas sensor.
+3. Connect the HC-SR04 ultrasonic sensor.
+4. Connect the webcam.
+5. Upload the Arduino sketch to the Arduino Uno.
+6. Confirm the Arduino serial port.
+7. Update the Python serial-port configuration if necessary.
+
+The current Python implementation is configured for `COM3` at `9600` baud.
+
+---
+
+# ▶️ Running the System
+
+Start the main monitoring application:
+
+```powershell
 python sentinelone_main_yolo_zone_stage3.py
+```
 
-The application reads sensor data, processes the webcam feed, performs worker detection, evaluates the configured danger zone, and determines the current safety status.
+The application will:
 
-Project Goal
+```text
+Connect to Arduino
+       ↓
+Start webcam
+       ↓
+Load YOLO11n
+       ↓
+Read sensor data
+       ↓
+Detect workers
+       ↓
+Evaluate danger zone
+       ↓
+Calculate safety status
+       ↓
+Display live dashboard
+       ↓
+Log safety events
+```
 
-The goal of SentinelOne Industrial is to demonstrate how embedded sensors and computer vision can be combined into a unified industrial safety-monitoring system.
+Press:
 
-The project focuses on environmental monitoring, worker detection, danger-zone monitoring, real-time safety classification, and safety-event recording.
+```text
+Q
+```
 
-Disclaimer
+to stop the monitoring application.
 
-SentinelOne Industrial is an educational/prototype project.
+The application releases the camera, closes the Arduino connection, and closes OpenCV windows during shutdown.
 
-It should not be considered a certified industrial safety system or a replacement for professionally certified industrial safety equipment, procedures, or personnel.
+---
 
-Project
+# ⚙️ Configuration
 
-SentinelOne Industrial
+Important configuration values can be adjusted in the main Python application.
+
+### Serial Communication
+
+```python
+ARDUINO_PORT = "COM3"
+BAUD_RATE = 9600
+```
+
+### Safety Thresholds
+
+```python
+GAS_WARNING = 70
+GAS_DANGER = 150
+
+DISTANCE_WARNING = 20
+DISTANCE_DANGER = 10
+```
+
+### YOLO
+
+```python
+YOLO_EVERY_N_FRAMES = 2
+```
+
+### Danger Zone
+
+```python
+DANGER_ZONE_X1 = 0.25
+DANGER_ZONE_Y1 = 0.45
+DANGER_ZONE_X2 = 0.80
+DANGER_ZONE_Y2 = 1.00
+```
+
+The danger-zone coordinates are normalized relative to the camera frame and can therefore be adjusted without hard-coding a specific camera resolution.
+
+---
+
+# 🧠 Safety Decision Logic
+
+The core decision process can be represented as:
+
+```text
+                   SENSOR + VISION DATA
+                           │
+          ┌────────────────┼────────────────┐
+          │                │                │
+          ▼                ▼                ▼
+       Gas Level        Distance       Worker Zone
+          │                │                │
+          └────────────────┼────────────────┘
+                           │
+                           ▼
+                    SAFETY ENGINE
+                           │
+             ┌─────────────┼─────────────┐
+             │             │             │
+             ▼             ▼             ▼
+           SAFE         WARNING        DANGER
+```
+
+Conceptually:
+
+```text
+IF worker enters danger zone
+        → DANGER
+
+ELSE IF gas > danger threshold
+        → DANGER
+
+ELSE IF distance <= danger threshold
+        → DANGER
+
+ELSE IF gas > warning threshold
+        → WARNING
+
+ELSE IF distance <= warning threshold
+        → WARNING
+
+ELSE
+        → SAFE
+```
+
+---
+
+# 📈 Data & Analytics Pipeline
+
+```text
+                    REAL-TIME MONITORING
+                            │
+                            ▼
+                  ┌───────────────────┐
+                  │   Safety Events   │
+                  └─────────┬─────────┘
+                            │
+                            ▼
+                     safety_log.csv
+                            │
+                            ▼
+                  ┌───────────────────┐
+                  │ History / Analysis│
+                  └─────────┬─────────┘
+                            │
+                  ┌─────────┼─────────┐
+                  │         │         │
+                  ▼         ▼         ▼
+               Statistics  Trends   Graphs
+```
+
+---
+
+# 🔬 Technical Highlights
+
+### Multi-Modal Monitoring
+
+The system combines **sensor-based monitoring** and **computer vision** rather than relying on a single safety signal.
+
+### Real-Time Processing
+
+Sensor data and webcam frames are processed continuously while the system is running.
+
+### Configurable Danger Zone
+
+The danger zone is defined relative to the camera frame, allowing the monitored region to be adjusted for different setups.
+
+### YOLO Inference Optimization
+
+YOLO inference is intentionally performed every second frame while retaining the latest detections between inference frames. This reduces computational load and improves dashboard responsiveness.
+
+### Event-Based Logging
+
+Safety information is stored as structured CSV data, allowing the system to be analyzed after operation.
+
+---
+
+# 🧪 Development Roadmap
+
+Future improvements may include:
+
+* [ ] Multi-camera monitoring
+* [ ] Web-based monitoring dashboard
+* [ ] Email/SMS/notification alerts
+* [ ] Improved worker tracking
+* [ ] More advanced zone management
+* [ ] Database-backed event storage
+* [ ] Remote monitoring
+* [ ] Hardware alarm integration
+* [ ] Improved sensor calibration
+* [ ] Model optimization for edge devices
+* [ ] Automated report generation
+
+---
+
+# ⚠️ Limitations
+
+This project is currently a **prototype**.
+
+Important limitations include:
+
+* Gas readings depend on the connected sensor and its calibration.
+* Distance measurements depend on the HC-SR04 and installation conditions.
+* YOLO detection performance depends on camera quality, lighting, positioning, and scene conditions.
+* A camera-based danger zone is dependent on the camera viewpoint.
+* The configured safety thresholds are project-specific prototype values.
+* The system has not been certified for use as an industrial safety control system.
+
+---
+
+# 🛑 Safety Disclaimer
+
+**SentinelOne Industrial is an educational and engineering prototype.**
+
+It is **not a certified industrial safety system** and must not be used as a replacement for professionally certified safety equipment, emergency systems, industrial controls, risk assessments, or trained safety personnel.
+
+The threshold values and detection logic demonstrated in this repository are intended for experimentation and development.
+
+---
+
+# 🎯 Project Goal
+
+The goal of SentinelOne Industrial is to demonstrate how **embedded systems, environmental sensing, computer vision, and software analytics** can be combined into a unified industrial safety-monitoring platform.
+
+The project explores:
+
+```text
+Embedded Sensing
+       +
+Computer Vision
+       +
+Real-Time Processing
+       +
+Safety Decision Logic
+       +
+Event Logging
+       +
+Analytics
+       =
+Integrated Safety Monitoring Prototype
+```
+
+---
+
+# 👤 Project
+
+**SentinelOne Industrial**
 
 Factory Worker Safety Monitoring System
+
+Developed as an engineering prototype exploring the integration of **Arduino, Python, computer vision, YOLO, sensor monitoring, and safety analytics**.
+
+---
+
+## ⭐ If You Find This Project Interesting
+
+Consider starring the repository and following the development of the project.
+
+**SentinelOne Industrial — From sensing to vision, from detection to decision.**
