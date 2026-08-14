@@ -38,9 +38,16 @@ void loop() {
 
   digitalWrite(trigPin, LOW);
 
-  long duration = pulseIn(echoPin, HIGH);
+  // Wait for echo with timeout
+  long duration = pulseIn(echoPin, HIGH, 30000);
 
-  float distance = duration * 0.0343 / 2;
+  float distance;
+
+  if (duration == 0) {
+    distance = -1;
+  } else {
+    distance = duration * 0.0343 / 2;
+  }
 
   // -------------------------
   // Print values
@@ -49,8 +56,15 @@ void loop() {
   Serial.print(gasValue);
 
   Serial.print(" | Distance: ");
-  Serial.print(distance);
-  Serial.println(" cm");
+
+  if (distance < 0) {
+    Serial.print("NO_ECHO");
+  } else {
+    Serial.print(distance);
+    Serial.print(" cm");
+  }
+
+  Serial.println();
 
   delay(500);
 }
