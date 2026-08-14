@@ -10,91 +10,125 @@ The system continuously combines environmental sensor data with visual informati
 
 ---
 
-## 🚨 Overview
-
-Industrial environments can contain multiple simultaneous hazards. SentinelOne Industrial is designed as a prototype system for monitoring several of these conditions in real time.
-
-The system combines:
-
-* 🌫️ Gas-level monitoring
-* 📏 Ultrasonic distance monitoring
-* 👷 YOLO-based worker detection
-* 🚧 Configurable danger-zone detection
-* 🟢 SAFE / 🟠 WARNING / 🔴 DANGER classification
-* 🖥️ Real-time monitoring dashboard
-* 📋 CSV safety-event logging
-* 📊 Historical safety analytics
-* 🔌 Arduino-to-Python serial communication
-* 📷 Webcam-based computer vision
-
----
-
 # 🏗️ System Architecture
 
 ```text
-                         SENTINELONE INDUSTRIAL
-                    FACTORY WORKER SAFETY MONITOR
+                          SENTINELONE INDUSTRIAL
+                     FACTORY WORKER SAFETY MONITOR
                                   │
-              ┌───────────────────┴───────────────────┐
-              │                                       │
-              ▼                                       ▼
-       ┌───────────────┐                       ┌───────────────┐
-       │  ARDUINO UNO  │                       │    WEBCAM     │
-       └───────┬───────┘                       └───────┬───────┘
+               ┌───────────────────┴───────────────────┐
                │                                       │
-       ┌───────┴────────┐                              │
-       │                │                              │
-       ▼                ▼                              ▼
- ┌───────────┐    ┌───────────┐              ┌────────────────┐
- │ Gas Sensor│    │  HC-SR04   │              │ YOLO11n Model  │
- │ MQ-2 /    │    │ Ultrasonic │              │ Worker/Person  │
- │ MQ-135    │    │  Distance  │              │   Detection    │
- └─────┬─────┘    └─────┬─────┘              └───────┬────────┘
-       │                │                             │
-       └────────────────┴──────────────┬──────────────┘
+               ▼                                       ▼
+        ┌───────────────┐                       ┌───────────────┐
+        │  ARDUINO UNO  │                       │    WEBCAM     │
+        └───────┬───────┘                       └───────┬───────┘
+                │                                       │
+        ┌───────┴────────┐                              │
+        │                │                              │
+        ▼                ▼                              ▼
+  ┌───────────┐    ┌───────────┐              ┌────────────────┐
+  │ Gas Sensor│    │  HC-SR04   │              │ YOLO11n Model  │
+  │ MQ-2 /    │    │ Ultrasonic │              │ Worker/Person  │
+  │ MQ-135    │    │  Distance  │              │   Detection    │
+  └─────┬─────┘    └─────┬─────┘              └───────┬────────┘
+        │                │                             │
+        └────────────────┴──────────────┬──────────────┘
                                        │
                                        ▼
-                            ┌─────────────────────┐
-                            │   PYTHON SAFETY     │
-                            │       ENGINE        │
-                            └──────────┬──────────┘
+                             ┌─────────────────────┐
+                             │   PYTHON SAFETY     │
+                             │       ENGINE        │
+                             └──────────┬──────────┘
                                        │
-                         ┌─────────────┼─────────────┐
-                         │             │             │
-                         ▼             ▼             ▼
-                  ┌────────────┐ ┌────────────┐ ┌─────────────┐
-                  │ Gas Safety │ │ Distance  │ │ Danger Zone │
-                  │ Evaluation │ │ Evaluation│ │  Detection  │
-                  └─────┬──────┘ └─────┬──────┘ └──────┬──────┘
-                        │              │               │
-                        └──────────────┼───────────────┘
+                          ┌─────────────┼─────────────┐
+                          │             │             │
+                          ▼             ▼             ▼
+                   ┌────────────┐ ┌────────────┐ ┌─────────────┐
+                   │ Gas Safety │ │ Distance  │ │ Danger Zone │
+                   │ Evaluation │ │ Evaluation│ │  Detection  │
+                   └─────┬──────┘ └─────┬──────┘ └──────┬──────┘
+                         │              │               │
+                         └──────────────┼───────────────┘
                                        │
                                        ▼
-                            ┌─────────────────────┐
-                            │   SAFETY ENGINE     │
-                            │                     │
-                            │ SAFE / WARNING /    │
-                            │       DANGER        │
-                            └──────────┬──────────┘
+                             ┌─────────────────────┐
+                             │   SAFETY ENGINE     │
+                             │                     │
+                             │ SAFE / WARNING /    │
+                             │       DANGER        │
+                             └──────────┬──────────┘
                                        │
-                         ┌─────────────┴─────────────┐
-                         │                           │
-                         ▼                           ▼
-                ┌────────────────┐          ┌─────────────────┐
-                │ LIVE DASHBOARD │          │  EVENT LOGGER   │
-                │                │          │                 │
-                │ Sensor Data    │          │ safety_log.csv  │
-                │ Workers        │          └────────┬────────┘
-                │ Zone Status    │                   │
-                │ Safety Status  │                   ▼
-                └────────────────┘          ┌─────────────────┐
-                                            │    ANALYTICS    │
-                                            │                 │
-                                            │ History         │
-                                            │ Statistics      │
-                                            │ Graphs          │
-                                            └─────────────────┘
+                          ┌─────────────┴─────────────┐
+                          │                           │
+                          ▼                           ▼
+                 ┌────────────────┐          ┌─────────────────┐
+                 │ LIVE DASHBOARD │          │  EVENT LOGGER   │
+                 │                │          │                 │
+                 │ Sensor Data    │          │ safety_log.csv  │
+                 │ Workers        │          └────────┬────────┘
+                 │ Zone Status    │                   │
+                 │ Safety Status  │                   ▼
+                 └────────────────┘          ┌─────────────────┐
+                                             │    ANALYTICS    │
+                                             │                 │
+                                             │ History         │
+                                             │ Statistics      │
+                                             │ Graphs          │
+                                             └─────────────────┘
 ```
+
+---
+
+# 📁 Project Structure
+
+The repository is organized into separate components for **real-time monitoring, computer vision, serial communication, analytics, configuration, and documentation**.
+
+```text
+SentinelOne-Industrial/
+│
+├── README.md
+├── .gitignore
+├── requirements.txt
+│
+├── sentinelone_main_yolo_zone_stage3.py
+├── sentinelone_serial.py
+├── worker_detection.py
+├── worker_detection_yolo.py
+│
+├── yolo11n.pt
+│
+├── safety_log.csv
+│
+├── sentinelone_analytics.py
+├── sentinelone_history.py
+│
+├── archive/
+│   └── old_versions/
+│       └── Previous development versions
+│
+├── docs/
+│
+└── data/
+```
+
+### Main Components
+
+| Component                              | Purpose                                |
+| -------------------------------------- | -------------------------------------- |
+| `sentinelone_main_yolo_zone_stage3.py` | Main safety-monitoring application     |
+| `sentinelone_serial.py`                | Arduino-to-Python serial communication |
+| `worker_detection.py`                  | Worker-detection utilities             |
+| `worker_detection_yolo.py`             | YOLO-based worker/person detection     |
+| `sentinelone_analytics.py`             | Safety-event analytics                 |
+| `sentinelone_history.py`               | Historical safety-event handling       |
+| `requirements.txt`                     | Python dependencies                    |
+| `yolo11n.pt`                           | YOLO11n model weights                  |
+| `safety_log.csv`                       | Recorded safety events                 |
+| `archive/`                             | Previous development versions          |
+| `docs/`                                | Project documentation                  |
+| `data/`                                | Project data                           |
+
+> The `archive/` directory contains previous development versions and is kept separately from the active implementation.
 
 ---
 
@@ -140,6 +174,8 @@ The current implementation:
 * Uses worker position for danger-zone evaluation.
 
 ## The system also retains the latest valid detections between inference frames to improve dashboard smoothness on typical computers.
+
+---
 
 # 🚧 Danger-Zone Detection
 
@@ -269,6 +305,8 @@ The dashboard can display:
 
 ## The Stage 3 implementation displays the current status directly on the monitoring frame and reports the same information in the terminal.
 
+---
+
 # 📋 Safety Event Logging
 
 Safety events are stored in CSV format.
@@ -323,16 +361,16 @@ Possible analysis includes:
 MQ Gas Sensor ─────┐
                    │
                    ▼
-              Arduino UNO
+               Arduino UNO
                    │
 HC-SR04 ───────────┘
                    │
                    │ USB / Serial
                    ▼
-             Python Application
+              Python Application
                    │
                    ▼
-             Safety Engine
+              Safety Engine
 ```
 
 ---
@@ -351,40 +389,6 @@ HC-SR04 ───────────┘
 | Visualization        | Matplotlib  |
 | Logging              | CSV         |
 | Dashboard            | OpenCV      |
-
----
-
-# 📁 Project Structure
-
-```text
-SentinelOne-Industrial/
-│
-├── README.md
-├── .gitignore
-├── requirements.txt
-│
-├── sentinelone_main_yolo_zone_stage3.py
-├── sentinelone_serial.py
-├── worker_detection.py
-├── worker_detection_yolo.py
-│
-├── yolo11n.pt
-│
-├── safety_log.csv
-│
-├── sentinelone_analytics.py
-├── sentinelone_history.py
-│
-├── archive/
-│   └── old_versions/
-│       └── Previous development versions
-│
-├── docs/
-│
-└── data/
-```
-
-> The `archive/` directory contains previous development versions and is kept separately from the active implementation.
 
 ---
 
@@ -522,20 +526,20 @@ The core decision process can be represented as:
 ```text
                    SENSOR + VISION DATA
                            │
-          ┌────────────────┼────────────────┐
-          │                │                │
-          ▼                ▼                ▼
-       Gas Level        Distance       Worker Zone
-          │                │                │
-          └────────────────┼────────────────┘
-                           │
-                           ▼
-                    SAFETY ENGINE
-                           │
-             ┌─────────────┼─────────────┐
-             │             │             │
-             ▼             ▼             ▼
-           SAFE         WARNING        DANGER
+           ┌────────────────┼────────────────┐
+           │                │                │
+           ▼                ▼                ▼
+        Gas Level        Distance       Worker Zone
+           │                │                │
+           └────────────────┼────────────────┘
+                            │
+                            ▼
+                      SAFETY ENGINE
+                            │
+                 ┌──────────┼──────────┐
+                 │          │          │
+                 ▼          ▼          ▼
+               SAFE      WARNING     DANGER
 ```
 
 Conceptually:
@@ -566,14 +570,14 @@ ELSE
 
 ```text
                     REAL-TIME MONITORING
-                            │
-                            ▼
+                           │
+                           ▼
                   ┌───────────────────┐
                   │   Safety Events   │
                   └─────────┬─────────┘
                             │
                             ▼
-                     safety_log.csv
+                       safety_log.csv
                             │
                             ▼
                   ┌───────────────────┐
