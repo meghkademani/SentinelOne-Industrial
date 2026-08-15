@@ -1,6 +1,5 @@
 opencv-python
 pyserial
 ultralytics
-numpy
 pandas
 matplotlib
