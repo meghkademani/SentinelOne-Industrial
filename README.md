@@ -2,7 +2,7 @@
 
 ### AI-Powered Factory Worker Safety Monitoring System
 
-> **A real-time industrial safety system combining IoT sensors, computer vision, and intelligent safety logic to detect hazardous conditions and protect factory workers.**
+> **A real-time industrial safety system combining IoT sensors, computer vision, and intelligent safety logic to detect hazardous conditions and protect factory workers.** 
 
 
 
