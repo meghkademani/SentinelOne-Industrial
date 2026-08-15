@@ -1,3 +1,36 @@
+Okay bro — don't worry about the color now. We need one definitive check.
+
+Run exactly:
+
+git status --porcelain=v1
+
+It will produce lines like:
+
+ M README.md
+A  assets/worker_detection_test_cases.png
+
+The two characters at the beginning matter:
+
+M → README not staged
+M → README staged ✅
+A → asset staged ✅
+?? → file not staged/untracked
+If you get M README.md
+
+Run:
+
+git add -- README.md
+
+Then immediately:
+
+git status --porcelain=v1
+
+Paste that complete output here. Don't commit yet.
+
+We are going to get this sorted without touching your actual files. 👍
+
+leave i bro manually icant change from gihutb ?
+
 Yes bro 😄 — you can absolutely add the files manually through GitHub's website. If Git is giving you a headache, that's a perfectly fine workaround.
 
 From GitHub website
@@ -45,9 +78,6 @@ So when you upload README.md and assets/hardware_setup.jpg to GitHub, the image 
 README_new.md
 Document
 
-Library
-/
-README_new.md
 SentinelOne Industrial
 Factory Worker Safety Monitoring System
 
@@ -496,15 +526,23 @@ HC-SR04 ultrasonic distance sensor
 USB connection
 Computer/laptop
 Webcam
-Hardware Connections
-
-The following hardware setup image shows the prototype hardware connections used by the SentinelOne Industrial system.
-
-
-
-
-Hardware setup: Prototype connection overview for the Arduino, environmental sensors, computer/serial connection, and monitoring setup.
-
+Hardware Flow
+MQ Gas Sensor ─────┐
+                   │
+                   ▼
+               Arduino UNO
+                   │
+HC-SR04 ───────────┘
+                   │
+                   │ USB / Serial
+                   ▼
+              Python Application
+                   │
+                   ▼
+              Safety Engine
+                   │
+                   ▼
+              Live Dashboard
 💻 Software Stack
 Component	Technology
 Programming	Python
@@ -855,3 +893,5 @@ Analytics
 Consider starring the repository and following the project.
 
 SentinelOne Industrial — From sensing to vision, from detection to decision.
+
+Close
