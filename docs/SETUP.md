@@ -1,14 +1,14 @@
 # SentinelOne Industrial – Setup Guide
 
-This guide explains how to set up and run the SentinelOne Industrial factory worker safety monitoring prototype.
+This guide explains how to set up and run the **SentinelOne Industrial** factory worker safety monitoring prototype.
 
-SentinelOne Industrial combines Arduino-based environmental sensing with computer vision to monitor worker safety conditions and classify the environment into `SAFE`, `WARNING`, and `DANGER` states.
+SentinelOne Industrial combines **Arduino-based environmental sensing, ultrasonic distance measurement, computer vision, YOLO11n worker detection, danger-zone monitoring, and safety-event logging** into a unified monitoring system.
+
+> **Project status:** Functional engineering prototype.
 
 ---
 
 ## 1. Prerequisites
-
-Before running the system, make sure you have:
 
 ### Hardware
 
@@ -24,13 +24,13 @@ Before running the system, make sure you have:
 * Python 3.x
 * Git
 * Arduino IDE
-* A working internet connection for installing Python dependencies
+* Internet connection for installing Python dependencies
 
 ---
 
 ## 2. Clone the Repository
 
-Clone the repository using Git:
+Clone the project from GitHub:
 
 ```bash
 git clone https://github.com/meghkademani/SentinelOne-Industrial.git
@@ -39,29 +39,31 @@ cd SentinelOne-Industrial
 
 ---
 
-## 3. Create a Python Virtual Environment
+## 3. Create the Python Virtual Environment
 
-Using a virtual environment keeps the project's Python dependencies isolated from other projects.
+A virtual environment keeps project dependencies isolated from the rest of the system.
 
-Create the virtual environment:
+Create the environment:
 
-```bash
+```powershell
 python -m venv .venv
 ```
 
-Activate the environment on Windows PowerShell:
+Activate it in Windows PowerShell:
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-After activation, the terminal should show:
+After activation, the terminal should display:
 
 ```text
 (.venv)
 ```
 
-If PowerShell blocks the activation script, run:
+### PowerShell execution-policy error
+
+If PowerShell prevents activation, run:
 
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
@@ -77,361 +79,520 @@ Then activate the environment again:
 
 ## 4. Install Python Dependencies
 
-Make sure the virtual environment is activated before installing dependencies.
+Make sure `.venv` is active before installing packages.
 
-Install the required packages:
-
-```bash
+```powershell
 pip install -r requirements.txt
 ```
 
-The project uses Python libraries for computer vision, YOLO-based detection, serial communication, analytics, and data processing.
+Verify Python:
 
-To verify the Python environment:
-
-```bash
+```powershell
 python --version
+```
+
+Verify pip:
+
+```powershell
 pip --version
 ```
 
-To verify PyTorch:
+Verify PyTorch:
 
-```bash
+```powershell
 python -c "import torch; print('PyTorch:', torch.__version__)"
 ```
 
-To verify Ultralytics:
+Verify Ultralytics:
 
-```bash
+```powershell
 python -c "import ultralytics; print('Ultralytics: OK')"
 ```
 
+If both verification commands succeed, the computer-vision environment is ready.
+
 ---
 
-## 5. Hardware Setup
+## 5. Arduino and Sensor Setup
 
-Connect the hardware before starting the monitoring application.
+Connect the hardware before starting the Python monitoring application.
 
 ### Arduino
 
 1. Connect the Arduino Uno to the computer using USB.
-2. Connect the MQ-series gas sensor to the Arduino.
-3. Connect the HC-SR04 ultrasonic distance sensor to the Arduino.
-4. Upload the Arduino sensor-reading firmware using the Arduino IDE.
-5. Open Windows Device Manager and identify the Arduino's COM port.
-6. Make sure the Arduino is available for serial communication.
-
-### Webcam
-
-Connect the webcam to the computer and make sure Windows recognizes it.
-
-Close other applications that may already be using the webcam.
-
----
-
-## 6. Serial Communication
-
-The Python application communicates with the Arduino through a serial connection.
-
-The current prototype uses a serial connection with a baud rate of:
+2. Connect the MQ-series gas sensor.
+3. Connect the HC-SR04 ultrasonic sensor.
+4. Open the Arduino sketch located in:
 
 ```text
-9600
+sketch_aug13a/
 ```
 
-The COM port may vary depending on the computer.
+5. Upload the sensor-reading firmware using the Arduino IDE.
+6. Open **Windows Device Manager**.
+7. Locate the Arduino under **Ports (COM & LPT)**.
+8. Note the assigned COM port.
 
-For example:
+The development configuration currently uses:
 
 ```text
 COM3
 ```
 
-may be used on the development machine.
+The actual COM port may be different on another computer.
 
-If your Arduino appears on a different COM port, the current implementation may require the serial-port setting in the Python code to be updated accordingly.
+### Webcam
 
-> Centralized configuration for the COM port and safety thresholds is planned as a future improvement.
+Connect the webcam and verify that Windows recognizes it.
+
+Close applications such as other camera software, video-conferencing applications, or other Python programs that may already be using the webcam.
 
 ---
 
-## 7. Run the Monitoring System
+## 6. Serial Communication
 
-Before starting the application, make sure:
+The Python application receives sensor data from the Arduino through a serial connection.
 
-* The `.venv` environment is activated.
-* The Arduino is connected through USB.
-* The Arduino sensor-reading firmware is running.
-* The webcam is connected and available.
-* The required Python dependencies are installed.
+Current development configuration:
 
-Start the main SentinelOne Industrial monitoring application:
-
-```bash
-python sentinelone_main_yolo_zone_stage3.py
+```text
+Serial Port : COM3
+Baud Rate   : 9600
 ```
 
-The main application uses the supporting modules in the repository to perform monitoring and detection.
+The Arduino sends sensor information containing values such as gas level and distance.
 
-During execution, the system can:
+Example:
 
-1. Connect to the Arduino.
-2. Read sensor data.
-3. Start the webcam.
-4. Load the YOLO worker-detection model.
-5. Detect workers in the camera feed.
-6. Monitor the configured danger zone.
-7. Evaluate sensor and worker-detection conditions.
-8. Determine the current safety state.
-9. Display the monitoring information.
-10. Generate analytics and safety-related information.
+```text
+Gas: 82 | Distance: 17.50
+```
 
-Press `Q` to stop the monitoring application.
+If Windows assigns the Arduino a different COM port, update the corresponding serial configuration in the active Python implementation before running the system.
+
+> The COM port is currently configured in the Python implementation rather than through a dedicated external configuration file.
 
 ---
 
-## 8. Safety States
+## 7. YOLO Model
 
-SentinelOne Industrial classifies the current environment into three safety states.
+The project uses **YOLO11n** for real-time person/worker detection.
+
+The model file included with the project is:
+
+```text
+yolo11n.pt
+```
+
+Make sure the model file remains available in the project directory expected by the application.
+
+The YOLO model is used to:
+
+* Detect people in webcam frames.
+* Count detected workers.
+* Determine worker positions.
+* Evaluate whether a worker has entered the configured danger zone.
+
+The system performs YOLO inference at a controlled frame interval to reduce unnecessary computational load.
+
+---
+
+## 8. Run the Monitoring System
+
+Before starting the application, verify:
+
+* `.venv` is activated.
+* Arduino is connected.
+* Arduino sensor firmware is running.
+* Correct COM port is configured.
+* Webcam is available.
+* YOLO model is present.
+* Python dependencies are installed.
+
+### Start the current Stage 5 application
+
+Run:
+
+```powershell
+python sentinelone_stage5.py
+```
+
+The application will initialize the monitoring pipeline:
+
+```text
+Arduino
+   ↓
+Serial Sensor Data
+   ↓
+Python Safety Engine
+   +
+Webcam
+   ↓
+YOLO11n Detection
+   ↓
+Worker / Danger-Zone Evaluation
+   ↓
+Safety Classification
+   ↓
+Dashboard + Event Logging
+```
+
+During operation, the terminal reports information such as:
+
+```text
+Gas: 31 | Distance: 233.96 cm | Workers: 1
+Zone: INTRUSION
+Status: DANGER
+Reason: DANGER ZONE INTRUSION
+```
+
+Press:
+
+```text
+Q
+```
+
+to stop monitoring.
+
+The application then releases the webcam, closes the serial connection, and saves the safety log.
+
+---
+
+## 9. Safety Classification
+
+The safety engine evaluates sensor conditions and worker-zone conditions.
 
 ### SAFE
 
-The monitored conditions are within the configured safe limits.
+The monitored environment is operating within the configured safe limits.
 
 ### WARNING
 
-One or more monitored conditions require attention, but the situation has not reached the danger threshold.
+A monitored condition has crossed its warning threshold but has not reached the configured danger condition.
 
 ### DANGER
 
-A dangerous condition has been detected, such as a worker entering a monitored danger zone or a sensor value exceeding its configured threshold.
+A critical safety condition has been detected.
 
-The exact thresholds depend on the current implementation and may be adjusted as the project evolves.
+Examples include:
+
+* Worker entering the configured danger zone.
+* Gas level exceeding the danger threshold.
+* Distance reaching the danger threshold.
+
+Danger conditions take priority over normal operation.
 
 ---
 
-## 9. Troubleshooting
+## 10. Current Safety Thresholds
 
-### 9.1 Arduino connection fails
+The current prototype uses the following software thresholds.
 
-If the application cannot connect to the Arduino:
+### Gas
 
-* Make sure the Arduino is connected through USB.
-* Check the Arduino's COM port in Windows Device Manager.
-* Make sure the correct COM port is configured in the Python application.
-* Make sure no other application is using the Arduino's serial port.
-* Confirm that the Arduino firmware is running.
-* Disconnect and reconnect the Arduino if necessary.
-* Restart the monitoring application.
+| Condition | Threshold |
+| --------- | --------: |
+| WARNING   |    `> 70` |
+| DANGER    |   `> 150` |
 
-### 9.2 Webcam is not detected
+### Distance
 
-If the webcam does not start:
+| Condition | Threshold |
+| --------- | --------: |
+| WARNING   | `≤ 20 cm` |
+| DANGER    | `≤ 10 cm` |
 
-* Make sure the webcam is connected.
-* Check Windows camera permissions.
-* Close other applications that may be using the camera.
-* Reconnect the webcam.
-* Restart the monitoring application.
+These values are **prototype software thresholds** and are not certified occupational exposure limits or industrial safety standards.
 
-### 9.3 Python module is missing
+---
 
-If Python reports an error such as:
+## 11. Danger-Zone Monitoring
 
-```text
-ModuleNotFoundError
+The camera frame contains a configurable rectangular danger zone.
+
+The current implementation uses normalized coordinates rather than fixed pixel coordinates, allowing the zone to adapt to the active camera resolution.
+
+Current configuration:
+
+```python
+DANGER_ZONE_X1 = 0.25
+DANGER_ZONE_Y1 = 0.45
+DANGER_ZONE_X2 = 0.80
+DANGER_ZONE_Y2 = 1.00
 ```
 
-make sure the virtual environment is activated:
+The system evaluates the lower portion of a detected person's bounding box as an approximation of their standing/foot position.
+
+When a detected worker enters the configured danger zone, the system reports:
+
+```text
+Zone: INTRUSION
+Status: DANGER
+Reason: DANGER ZONE INTRUSION
+```
+
+---
+
+## 12. Safety Event Logging
+
+Safety events are recorded in:
+
+```text
+safety_log.csv
+```
+
+The log contains information such as:
+
+```text
+Timestamp
+Gas
+Distance
+Workers
+Status
+Reason
+```
+
+Example:
+
+```text
+2026-08-16 01:10:10 | Gas: 31 | Distance: 233.96 cm | Workers: 1 | Status: DANGER | Reason: DANGER ZONE INTRUSION
+```
+
+The CSV log can later be used by the project's analytics and history components.
+
+---
+
+## 13. Project Structure
+
+The important project components are organized approximately as follows:
+
+```text
+SentinelOne-Industrial/
+│
+├── README.md
+├── requirements.txt
+├── .gitignore
+│
+├── sentinelone_stage5.py
+├── sentinelone_serial.py
+├── sentinelone_analytics.py
+├── sentinelone_history.py
+├── worker_detection.py
+├── worker_detection_yolo.py
+│
+├── yolo11n.pt
+├── safety_log.csv
+│
+├── sketch_aug13a/
+│   └── Arduino sensor firmware
+│
+├── src/
+│   └── Supporting source components
+│
+├── models/
+│   └── Model-related resources
+│
+├── docs/
+│   ├── SETUP.md
+│   ├── safety_logic.md
+│   └── testing.md
+│
+└── archive/
+    └── Previous development versions
+```
+
+### Main application
+
+```text
+sentinelone_stage5.py
+```
+
+The current Stage 5 monitoring application and primary runtime entry point.
+
+### Serial communication
+
+```text
+sentinelone_serial.py
+```
+
+Contains serial communication functionality used to exchange information with the Arduino.
+
+### Worker detection
+
+```text
+worker_detection.py
+worker_detection_yolo.py
+```
+
+Supporting worker/person detection functionality.
+
+### Analytics
+
+```text
+sentinelone_analytics.py
+sentinelone_history.py
+```
+
+Components used for safety-event history and analysis.
+
+### Arduino firmware
+
+```text
+sketch_aug13a/
+```
+
+Contains the Arduino-side sensor firmware.
+
+### YOLO model
+
+```text
+yolo11n.pt
+```
+
+YOLO11n model weights used for person detection.
+
+### Documentation
+
+```text
+docs/
+```
+
+Contains setup, safety-logic, and testing documentation.
+
+### Archive
+
+```text
+archive/
+```
+
+Contains previous development versions that are kept separate from the active implementation.
+
+---
+
+## 14. Basic Startup Checklist
+
+Before starting the system:
+
+* [ ] Arduino Uno is connected.
+* [ ] MQ-series gas sensor is connected.
+* [ ] HC-SR04 sensor is connected.
+* [ ] Arduino firmware has been uploaded.
+* [ ] Correct Arduino COM port is known.
+* [ ] Webcam is connected and available.
+* [ ] `.venv` is activated.
+* [ ] Python dependencies are installed.
+* [ ] `yolo11n.pt` is available.
+* [ ] `sentinelone_stage5.py` is present.
+
+Then run:
+
+```powershell
+python sentinelone_stage5.py
+```
+
+---
+
+## 15. Troubleshooting
+
+### Arduino connection fails
+
+Check:
+
+1. Arduino USB connection.
+2. COM port in Windows Device Manager.
+3. Python serial-port configuration.
+4. Arduino firmware.
+5. Whether another program is using the serial port.
+
+If necessary, disconnect and reconnect the Arduino and restart the application.
+
+---
+
+### Webcam does not start
+
+Check:
+
+* Webcam connection.
+* Windows camera permissions.
+* Whether another application is using the camera.
+* Camera availability in OpenCV.
+
+Close other camera applications and restart the monitoring program.
+
+---
+
+### `ModuleNotFoundError`
+
+Activate the virtual environment:
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-Then reinstall the project dependencies:
+Then reinstall dependencies:
 
-```bash
+```powershell
 pip install -r requirements.txt
 ```
 
-### 9.4 PyTorch or Ultralytics verification fails
+---
 
-Verify that the packages are installed inside the active virtual environment:
+### YOLO model fails to load
 
-```bash
+Verify that:
+
+```text
+yolo11n.pt
+```
+
+is available and that Ultralytics is installed:
+
+```powershell
+python -c "import ultralytics; print('Ultralytics: OK')"
+```
+
+Also verify PyTorch:
+
+```powershell
 python -c "import torch; print('PyTorch:', torch.__version__)"
 ```
 
-```bash
-python -c "import ultralytics; print('Ultralytics: OK')"
-```
+---
 
-If either command fails, reinstall the project dependencies:
+### Serial data shows unexpected values
 
-```bash
-pip install -r requirements.txt
-```
+Check:
 
-### 9.5 YOLO model fails to load
+* Arduino sensor wiring.
+* Arduino firmware.
+* Sensor power supply.
+* Serial baud rate.
+* Serial output format.
+* Sensor calibration.
 
-If the YOLO model cannot be loaded:
+The current prototype values should not be interpreted as certified industrial measurements.
 
-* Make sure the required model file is present in the expected project location.
-* Make sure Ultralytics is installed.
-* Make sure PyTorch is installed correctly.
-* Check the terminal output for the specific model-loading error.
+---
 
-Verify Ultralytics:
+### Application stops unexpectedly
 
-```bash
-python -c "import ultralytics; print('Ultralytics: OK')"
-```
-
-### 9.6 The application immediately closes or stops
-
-Check the terminal for the Python error message.
+Check the terminal output for the Python exception.
 
 Common causes include:
 
-* Incorrect COM port
-* Arduino not connected
-* Webcam unavailable
-* Missing Python dependency
-* Missing YOLO model
-* Incorrect project path
-* Virtual environment not activated
+* Arduino disconnect.
+* Serial-port errors.
+* Webcam failure.
+* Missing dependency.
+* Missing YOLO model.
+* Incorrect configuration.
+* Hardware communication problems.
+
+The terminal output should be checked first because it usually identifies the failing component.
 
 ---
 
-## 10. Project Structure
-
-The current project contains the following important Python modules:
-
-```text
-SentinelOne-Industrial/
-│
-├── sentinelone_main_yolo_zone_stage3.py
-├── sentinelone_serial.py
-├── worker_detection.py
-├── worker_detection_yolo.py
-├── requirements.txt
-├── README.md
-│
-└── docs/
-    └── SETUP.md
-```
-
-### Main application
-
-`sentinelone_main_yolo_zone_stage3.py`
-
-This is the main entry point used to start the SentinelOne Industrial monitoring system.
-
-### Serial communication
-
-`sentinelone_serial.py`
-
-Handles communication between the Python application and the Arduino.
-
-### Worker detection
-
-`worker_detection.py`
-
-Contains worker-detection functionality used by the project.
-
-### YOLO worker detection
-
-`worker_detection_yolo.py`
-
-Contains YOLO-based worker detection functionality.
-
-### Dependencies
-
-`requirements.txt`
-
-Contains the Python packages required to run the project.
-
-### Documentation
-
-`docs/`
-
-Contains project documentation and setup instructions.
-
----
-
-## 11. Basic Startup Checklist
-
-Before running SentinelOne Industrial, verify the following:
-
-* [ ] Arduino Uno is connected.
-* [ ] Arduino sensor firmware is running.
-* [ ] MQ-series gas sensor is connected.
-* [ ] HC-SR04 sensor is connected.
-* [ ] Webcam is connected.
-* [ ] Correct Arduino COM port is known.
-* [ ] Python virtual environment is activated.
-* [ ] Python dependencies are installed.
-* [ ] YOLO model is available.
-* [ ] Main application file is present.
-
-Start the system with:
-
-```bash
-python sentinelone_main_yolo_zone_stage3.py
-```
-
----
-
-## 12. Current Limitations
-
-The current version is a working prototype and has some limitations.
-
-These include:
-
-* Serial-port configuration is not yet centralized.
-* Safety thresholds are not yet managed through a dedicated configuration file.
-* Error handling can be improved.
-* Automated unit testing is still being developed.
-* Continuous integration is not yet implemented.
-* The analytics and event-logging system can be expanded.
-
-These limitations are part of the project's planned engineering roadmap.
-
----
-
-## 13. Future Improvements
-
-Planned improvements include:
-
-1. Robust Arduino and serial-connection error handling.
-2. Centralized configuration for COM ports, thresholds, camera settings, and danger zones.
-3. Improved safety-event logging and analytics.
-4. Unit tests for `SAFE`, `WARNING`, and `DANGER` decision logic.
-5. Detailed architecture documentation.
-6. GitHub Actions and continuous integration.
-7. Additional reliability and production-oriented improvements.
-
-The goal is to evolve SentinelOne Industrial from a working prototype into a stronger, maintainable, and portfolio-level industrial safety monitoring system.
-
----
-
-## 14. Support and Troubleshooting
-
-If you encounter a problem:
-
-1. Check the terminal error message.
-2. Verify that the virtual environment is active.
-3. Verify that all dependencies are installed.
-4. Check the Arduino USB and COM-port connection.
-5. Check that the webcam is available.
-6. Verify that the required YOLO model is present.
-7. Review the project documentation and source code for configuration details.
-
-When reporting an issue, include the relevant terminal error message and the steps that caused the problem.
-
----
-
-## 15. Quick Start
+## 16. Quick Start
 
 For an already configured development environment:
 
@@ -441,13 +602,40 @@ For an already configured development environment:
 
 Then:
 
-```bash
-python sentinelone_main_yolo_zone_stage3.py
+```powershell
+python sentinelone_stage5.py
 ```
 
 Make sure the Arduino and webcam are connected before starting the application.
 
+Press `Q` to stop monitoring.
+
+---
+
+## 17. Important Notes
+
+SentinelOne Industrial is currently an **engineering and educational prototype**.
+
+The gas, distance, and computer-vision measurements depend on the connected hardware, calibration, camera position, environmental conditions, and software configuration.
+
+The configured thresholds are project-specific prototype values.
+
+This system must **not** be treated as a certified industrial safety controller or as a replacement for professional safety equipment, industrial controls, risk assessments, emergency systems, or trained safety personnel.
+
+For architecture and decision-making details, see:
+
+```text
+docs/safety_logic.md
+```
+
+For validation and test procedures, see:
+
+```text
+docs/testing.md
+```
+
 ---
 
 **SentinelOne Industrial**
+
 *Industrial Worker Safety Monitoring using Sensors + Computer Vision*
