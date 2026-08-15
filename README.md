@@ -4,7 +4,7 @@
 
 > **A real-time industrial safety system combining IoT sensors, computer vision, and intelligent safety logic to detect hazardous conditions and protect factory workers.** 
 
-
+ 
 
 
 
@@ -65,7 +65,7 @@ No significant hazard detected.
 
 A potentially unsafe condition has been detected.
 
-### 🔴 DANGER
+### 🔴 DANGER.
 
 A critical hazard or dangerous-zone intrusion has been detected.
 
@@ -438,7 +438,18 @@ https://www.linkedin.com/in/meghkademani30
 
 > **SentinelOne Industrial aims to bridge embedded systems and artificial intelligence to create safer, smarter, and more responsive industrial environments.**
 
-If you find this project interesting, consider ⭐ **starring the repository** and following the development journey.
+If you find this project interesting, consider ⭐ **starring the repository** and following 
+the development journey.
+
+## 🛠️ Hardware Components
+
+- **Arduino Uno** – Main microcontroller
+- **HC-SR04 Ultrasonic Sensor** – Distance and proximity detection
+- **MQ-2 Gas Sensor** – Gas and smoke detection
+- **Breadboard** – Circuit prototyping
+- **Jumper Wires** – Component connections
+- **Laptop Webcam** – Real-time worker detection
+
 
 ---
 
