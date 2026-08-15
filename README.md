@@ -4,7 +4,7 @@
 
 > **A real-time industrial safety system combining IoT sensors, computer vision, and intelligent safety logic to detect hazardous conditions and protect factory workers.** 
 
-
+ 
 
 
 
@@ -65,7 +65,7 @@ No significant hazard detected.
 
 A potentially unsafe condition has been detected.
 
-### 🔴 DANGER
+### 🔴 DANGER.
 
 A critical hazard or dangerous-zone intrusion has been detected.
 
