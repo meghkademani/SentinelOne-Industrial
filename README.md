@@ -103,27 +103,34 @@ SentinelOne-Industrial/
 │   ├── testing.md
 │   └── safety_logic.md
 │
-├── models/
-├── src/
-└── sketch_aug13a/
+├── sketch_aug13a/
+│   └── Arduino sketch files
+│
+└── assets/
+    ├── dashboard.png
+    ├── worker_detection.png
+    ├── danger_zone.png
+    ├── analytics.png
+    └── system_setup.png
 ```
 
 ## Main Components
 
-| Component                              | Purpose                                       |
-| -------------------------------------- | --------------------------------------------- |
-| `sentinelone_stage5.py`                | Final real-time safety monitoring application |
-| `sentinelone_serial.py`                | Arduino-to-Python serial communication        |
-| `sentinelone_analytics.py`             | Safety-event analytics                        |
-| `sentinelone_main_yolo_zone_stage3.py` | Previous development implementation           |
-| `worker_detection.py`                  | Worker-detection utilities                    |
-| `worker_detection_yolo.py`             | YOLO-based person detection                   |
-| `yolo11n.pt`                           | YOLO11n model weights                         |
-| `safety_log.csv`                       | Recorded safety events                        |
-| `requirements.txt`                     | Python dependencies                           |
-| `archive/`                             | Previous development versions                 |
-| `docs/`                                | Project documentation                         |
-| `sketch_aug13a/`                       | Arduino project/sketch files                  |
+| Component                              | Purpose                                                      |
+| -------------------------------------- | ------------------------------------------------------------ |
+| `sentinelone_stage5.py`                | Final real-time safety monitoring application                |
+| `sentinelone_serial.py`                | Arduino-to-Python serial communication                       |
+| `sentinelone_analytics.py`             | Safety-event analytics                                       |
+| `sentinelone_main_yolo_zone_stage3.py` | Previous development implementation                          |
+| `worker_detection.py`                  | Worker-detection utilities                                   |
+| `worker_detection_yolo.py`             | YOLO-based person detection                                  |
+| `yolo11n.pt`                           | YOLO11n model weights                                        |
+| `safety_log.csv`                       | Recorded safety events                                       |
+| `requirements.txt`                     | Python dependencies                                          |
+| `archive/`                             | Previous development versions                                |
+| `docs/`                                | Project documentation                                        |
+| `sketch_aug13a/`                       | Arduino project/sketch files                                 |
+| `assets/`                              | Project screenshots, dashboard images, and analytics visuals |
 
 > **Note:** `sentinelone_stage5.py` is the final active implementation. Earlier development versions are retained for project history and reference.
 
@@ -155,6 +162,8 @@ The monitoring pipeline operates continuously:
 10. Safety events are logged when status/reason changes
               ↓
 11. Recent safety events remain visible in the dashboard
+              ↓
+12. Recorded events can be analyzed through analytics
 ```
 
 ---
@@ -170,10 +179,9 @@ The final implementation:
 * Uses a confidence threshold of **0.45**.
 * Filters detections to the COCO `person` class.
 * Counts detected workers.
-* Uses the detected worker position for danger-zone evaluation.
+* Uses detected worker positions for danger-zone evaluation.
 * Retains the latest valid detections between inference frames for smoother dashboard operation.
-
-The person bounding-box coordinates are kept within the current camera frame to improve stability.
+* Keeps bounding-box coordinates within the active camera frame.
 
 ---
 
@@ -213,7 +221,7 @@ This allows the danger zone to scale with the active camera resolution.
 
 The lower-center point of a worker's bounding box is used as an approximation of the worker's standing position.
 
-A small detection margin is also applied to reduce unwanted status changes caused by YOLO bounding-box movement near the zone boundary.
+A small detection margin is also applied to reduce unwanted status changes caused by bounding-box movement near the zone boundary.
 
 When a worker enters the configured danger zone:
 
@@ -261,8 +269,6 @@ The HC-SR04 ultrasonic sensor provides distance information to the Arduino.
 
 The Python application receives the distance through serial communication.
 
-Current software thresholds:
-
 | Condition  | Threshold |
 | ---------- | --------: |
 | 🟠 WARNING |   ≤ 20 cm |
@@ -278,16 +284,12 @@ The system receives gas-level readings from the Arduino-based sensing subsystem.
 
 The gas value is transmitted to Python through serial communication and incorporated into the safety decision engine.
 
-Current software thresholds:
-
 | Condition  | Gas Level |
 | ---------- | --------: |
 | 🟠 WARNING |      > 70 |
 | 🔴 DANGER  |     > 150 |
 
 These are **prototype software thresholds**, not certified occupational exposure limits.
-
-The implementation defines:
 
 ```python
 GAS_WARNING = 70
@@ -313,8 +315,6 @@ Example Arduino message:
 Gas: 82 | Distance: 17.50
 ```
 
-The Python application extracts the gas and distance values and passes them to the safety engine.
-
 > **Note:** The COM port may be different on another computer. Update `ARDUINO_PORT` when required.
 
 ---
@@ -336,12 +336,121 @@ The dashboard displays:
 * Event reason
 * Exit instruction
 
-Example terminal output:
+## Live Dashboard
+
+![SentinelOne Industrial Live Dashboard](assets/dashboard.png)
+
+---
+
+# 📸 System Demonstration
+
+This section provides visual evidence of the working monitoring system.
+
+## 🎥 Camera & Worker Detection
+
+The webcam feed is processed using YOLO11n to identify people in the monitored area.
+
+![YOLO Worker Detection](assets/worker_detection.png)
+
+The detection pipeline provides:
+
+* Worker count
+* Bounding-box coordinates
+* Worker position
+* Danger-zone evaluation
+
+---
+
+## 🚧 Danger-Zone Intrusion
+
+When the detected worker enters the configured danger zone, the safety engine immediately changes the system state to `DANGER`.
+
+![Danger Zone Detection](assets/danger_zone.png)
+
+Expected state:
 
 ```text
-Gas: 31 | Distance: 233.96 cm | Workers: 1 |
-Zone: INTRUSION | Status: DANGER |
-Reason: DANGER ZONE INTRUSION
+ZONE   : INTRUSION
+STATUS : DANGER
+REASON : DANGER ZONE INTRUSION
+```
+
+---
+
+## 🟢 Normal Safe Operation
+
+A normal operating condition can be represented by:
+
+```text
+Gas      : 31
+Distance : 233.96 cm
+Workers  : 0
+Zone     : CLEAR
+Status   : SAFE
+Reason   : NORMAL
+```
+
+![Safe Monitoring State](assets/dashboard_safe.png)
+
+---
+
+## 🔴 Danger Monitoring State
+
+A danger condition can be represented by:
+
+```text
+Gas      : 31
+Distance : 233.96 cm
+Workers  : 1
+Zone     : INTRUSION
+Status   : DANGER
+Reason   : DANGER ZONE INTRUSION
+```
+
+![Danger Monitoring State](assets/dashboard_danger.png)
+
+---
+
+# 📊 Safety Analytics
+
+Recorded safety events are stored in:
+
+```text
+safety_log.csv
+```
+
+The analytics component can be used to analyze:
+
+* Total recorded events
+* SAFE events
+* WARNING events
+* DANGER events
+* Average gas level
+* Average distance
+* Worker detection statistics
+* Gas history
+* Distance history
+* Safety-status distribution
+* Safety-event trends
+
+## Analytics Visualization
+
+![SentinelOne Industrial Analytics](assets/analytics.png)
+
+The analytics pipeline converts recorded safety events into useful historical information and visual trends.
+
+```text
+Real-Time Monitoring
+        ↓
+Safety Decision Engine
+        ↓
+Safety Events
+        ↓
+safety_log.csv
+        ↓
+Analytics
+        ↓
+Statistics + Trends + Graphs
 ```
 
 ---
@@ -354,7 +463,7 @@ Safety events are stored in:
 safety_log.csv
 ```
 
-The final logging system records:
+The logging system records:
 
 | Field         | Description                       |
 | ------------- | --------------------------------- |
@@ -378,8 +487,6 @@ The system does **not** write an identical event to the CSV on every video frame
 
 A new event is logged when the safety status or event reason changes.
 
-For example:
-
 ```text
 SAFE
   ↓
@@ -388,7 +495,7 @@ DANGER ZONE INTRUSION
 DANGER
 ```
 
-This keeps the safety log more useful and prevents unnecessary duplicate records.
+This keeps the safety log useful and prevents unnecessary duplicate records.
 
 ---
 
@@ -396,7 +503,7 @@ This keeps the safety log more useful and prevents unnecessary duplicate records
 
 The final Stage 5 implementation maintains a compact history of recent safety events.
 
-The dashboard displays the latest events with:
+The dashboard displays:
 
 * Event time
 * Safety status
@@ -415,28 +522,6 @@ NORMAL
 ```
 
 The application also loads recent valid events from `safety_log.csv` when the system starts.
-
----
-
-# 📊 Analytics
-
-The repository contains analytics functionality for working with recorded safety events.
-
-Possible analysis includes:
-
-* Total recorded events
-* SAFE events
-* WARNING events
-* DANGER events
-* Average gas level
-* Average distance
-* Worker detection statistics
-* Gas history
-* Distance history
-* Safety-status distribution
-* Safety-event trends
-
-The CSV event log provides the persistent data source for this analysis.
 
 ---
 
@@ -530,7 +615,7 @@ pip install -r requirements.txt
 6. Confirm the Arduino COM port.
 7. Update the Python serial-port configuration if required.
 
-The current implementation uses:
+Current configuration:
 
 ```python
 ARDUINO_PORT = "COM3"
@@ -686,9 +771,7 @@ ELSE
         → SAFE
 ```
 
-Event reasons are assigned separately so the system can explain why the current state occurred.
-
-Possible reasons include:
+Possible event reasons include:
 
 ```text
 NORMAL
@@ -760,6 +843,10 @@ The application records safety events when the safety status or event reason cha
 
 Recent safety events are loaded from the CSV log and displayed directly on the monitoring dashboard.
 
+### Analytics
+
+Recorded events can be processed to generate historical statistics, trends, and graphs.
+
 ### Integrated Safety Decision Engine
 
 Sensor and vision conditions are combined into a unified:
@@ -778,7 +865,7 @@ classification.
 
 The final implementation was tested using the connected Arduino, ultrasonic distance sensor, gas sensor, webcam, and YOLO-based worker detection system.
 
-Observed normal operation includes:
+## Normal Operation
 
 ```text
 Gas: 31
@@ -789,7 +876,7 @@ Status: SAFE
 Reason: NORMAL
 ```
 
-Danger-zone testing produced:
+## Danger-Zone Testing
 
 ```text
 Gas: 31
@@ -800,13 +887,13 @@ Status: DANGER
 Reason: DANGER ZONE INTRUSION
 ```
 
-The event was also written to:
+The corresponding safety event was written to:
 
 ```text
 safety_log.csv
 ```
 
-with the corresponding safety reason.
+and displayed through the recent-event history.
 
 Detailed setup and testing information is available in:
 
